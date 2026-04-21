@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'NIS'
-  s.version          = '1.0.0'
+  s.version          = '1.0.1'
   s.summary          = 'Composable networking layer for Swift'
 
   s.description      = <<-DESC
@@ -17,22 +17,18 @@ It provides:
 Designed to be composable, predictable, and production-ready.
                        DESC
 
-  s.homepage         = 'https://github.com/matsota/NIS'
+  s.homepage         = 'https://github.com/matsotaa/nis'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Andrew Matsota' => 'matsotaandrew@gmail.com' }
-
-  s.source           = { :git => 'https://github.com/matsota/NIS.git', :tag => s.version.to_s }
-
-  # MUST match Package.swift
+  s.source           = { :git => 'https://github.com/matsotaa/nis.git', :tag => s.version.to_s }
   s.ios.deployment_target = '15.0'
   s.osx.deployment_target = '10.15'
   s.tvos.deployment_target = '13.0'
   s.watchos.deployment_target = '6.0'
-
-  # Swift 6 compatible
-  s.swift_versions = ['5.9', '5.10', '6.0']
-
-  s.source_files = 'Sources/NIS/**/*.swift'
-
+  s.swift_versions = ['5.9', '5.10']
+  s.module_name = 'NIS'
+  s.source_files = ['Sources/NIS/**/*.swift']
+  s.frameworks = ['Foundation', 'Combine', 'Security']
+  s.static_framework = true
   s.requires_arc = true
 end
