@@ -7,7 +7,7 @@ let package = Package(
     name: "NIS",
     platforms: [
         .iOS(.v15),
-        .macOS(.v10_15),
+        .macOS(.v12),
         .tvOS(.v13),
         .watchOS(.v6)
     ],

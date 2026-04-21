@@ -22,7 +22,7 @@ Designed to be composable, predictable, and production-ready.
   s.author           = { 'Andrew Matsota' => 'matsotaandrew@gmail.com' }
   s.source           = { :git => 'https://github.com/matsotaa/nis.git', :tag => s.version.to_s }
   s.ios.deployment_target = '15.0'
-  s.osx.deployment_target = '10.15'
+  s.osx.deployment_target = '12.0'
   s.tvos.deployment_target = '13.0'
   s.watchos.deployment_target = '6.0'
   s.swift_versions = ['5.9', '5.10']

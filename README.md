@@ -1,22 +1,67 @@
 # NIS
 
-Lightweight, composable networking layer for Swift.
+![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)
+![Platform](https://img.shields.io/badge/platform-iOS%2015%2B%20%7C%20macOS%2012%2B-lightgrey)
+![License](https://img.shields.io/badge/license-MIT-blue)
 
-Focused on **predictable request execution**, **clear extensibility**, and **modern concurrency**.
+Modern networking engine for Swift with deterministic execution, composable pipelines, and built-in request deduplication.
+
+---
+
+## Why NIS?
+
+Networking layers tend to become unpredictable as projects grow:
+
+- duplicated requests
+- hidden retry logic
+- scattered error handling
+- implicit side effects
+
+No hidden behavior. No implicit state. No surprises.
+
+NIS introduces a deterministic execution model where every step is explicit, composable, and fully controllable.
 
 ---
 
 ## ✨ Features
 
-* Async/Await first
-* Combine bridge
-* Request adaptation pipeline
-* Retry handling
-* Error parsing & interception
-* Response analyzers (analytics / logging)
-* In-flight request deduplication
-* Short-lived response reuse (TTL-based)
-* Fully composable components
+### Core
+- Async/Await first
+- Combine bridge
+
+### Pipeline
+- Request adaptation pipeline
+- Retry handling
+- Error parsing & interception
+- Response analyzers
+
+### Performance
+- In-flight request deduplication
+- Short-lived response reuse (TTL-based)
+
+### Architecture
+- Fully composable components
+
+---
+
+## ⚡ Smart Request Deduplication
+
+NIS automatically prevents duplicate requests.
+
+If multiple identical requests are executed:
+- only one network call is performed
+- all callers receive the same result
+
+---
+
+## ♻️ Response Reuse
+
+Recently completed requests can be reused for a short time window (TTL-based).
+
+This reduces:
+- unnecessary network traffic
+- UI flickering
+- redundant loading states
 
 ---
 
@@ -25,10 +70,10 @@ Focused on **predictable request execution**, **clear extensibility**, and **mod
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/matsota/NIS.git", from: "1.0.0")
+.package(url: "https://github.com/matsotaa/nis", from: "1.0.0")
 ```
 
-### CocoaPods (soon)
+### CocoaPods
 
 ```ruby
 pod 'NIS'
@@ -375,9 +420,7 @@ Where:
 ```swift
 struct MyPolicy: NISRecentResponseReusable {
     func policy(for request: URLRequest) -> NISRecentResponseReusePolicy {
-        guard let url = request.url?.absoluteString else {
-            return .disabled
-        }
+        guard let url = request.url?.absoluteString else { return .disabled }
 
         // Example: different policies per endpoint
         switch true {
@@ -397,7 +440,6 @@ struct MyPolicy: NISRecentResponseReusable {
             return .disabled
         }
     }
-}
 }
 ```
 
@@ -422,9 +464,7 @@ dispatcher
     }
 ```
 
-Single-shot publisher.
-
-Cancelling subscription cancels underlying request.
+Single-shot publisher. Cancelling cancels the underlying request.
 
 ---
 
@@ -457,15 +497,13 @@ You can start with zero configuration.
 
 ---
 
-## 🔐 Secure Session
+## 🔐 Secure Session (TLS Pinning)
 
-NIS allows you to use a **secure URLSession layer** via `NISSecureURLSession`.
+NIS provides a built-in secure URLSession with support for:
 
-This is useful when you need:
-
-* certificate pinning
-* public key pinning
-* enhanced transport security
+- certificate pinning
+- public key pinning
+- custom trust validation
 
 ---
 
@@ -520,10 +558,11 @@ let secureSession = NISSecureURLSession(
 
 ## 🧭 Design Principles
 
-* Explicit control over behavior
-* Composable building blocks
-* Async-first execution model
-* No hidden magic
+- Deterministic request execution
+- Explicit over implicit
+- Fully composable architecture
+- No hidden side effects
+- Async-first design
 
 ---
 
