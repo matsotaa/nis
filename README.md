@@ -25,7 +25,7 @@ Focused on **predictable request execution**, **clear extensibility**, and **mod
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/your-repo/NIS.git", from: "1.0.0")
+.package(url: "https://github.com/matsota/NIS.git", from: "1.0.0")
 ```
 
 ### CocoaPods (soon)
