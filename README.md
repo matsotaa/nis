@@ -1,8 +1,12 @@
 # NIS
 
 ![Swift](https://img.shields.io/badge/Swift-5.9%2B-orange)
-![Platform](https://img.shields.io/badge/platform-iOS%2015%2B%20%7C%20macOS%2012%2B-lightgrey)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+![SPM](https://img.shields.io/badge/SPM-supported-brightgreen)
+![CocoaPods](https://img.shields.io/badge/CocoaPods-available-red)
+![iOS](https://img.shields.io/badge/iOS-15%2B-black?logo=apple)
+![macOS](https://img.shields.io/badge/macOS-12%2B-black?logo=apple)
+![tvOS](https://img.shields.io/badge/tvOS-13%2B-black?logo=apple)
 
 Modern networking engine for Swift with deterministic execution, composable pipelines, and built-in request deduplication.
 
@@ -44,6 +48,24 @@ NIS introduces a deterministic execution model where every step is explicit, com
 
 ---
 
+## 🧩 Platform Support
+
+NIS is available across Apple platforms:
+
+| Platform | Status |
+|----------|--------|
+| iOS      | ✅ Full support |
+| macOS    | ✅ Full support |
+| tvOS     | ⚠️ Supported |
+
+### Notes
+
+- Fully supported on iOS and macOS
+- tvOS is intended for lightweight networking scenarios
+- Some advanced features (e.g. security/pinning) may have platform-specific limitations
+
+---
+
 ## ⚡ Smart Request Deduplication
 
 NIS automatically prevents duplicate requests.
@@ -70,7 +92,7 @@ This reduces:
 ### Swift Package Manager
 
 ```swift
-.package(url: "https://github.com/matsotaa/nis", from: "1.0.0")
+.package(url: "https://github.com/matsotaa/NIS.git", from: "1.0.0")
 ```
 
 ### CocoaPods

@@ -7,7 +7,6 @@
 
 import Foundation
 import Security
-import CFNetwork
 import CryptoKit
 
 // MARK: - Public Secure Session

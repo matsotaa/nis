@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'NIS'
-  s.version          = '1.0.1'
+  s.version          = '1.0.0'
   s.summary          = 'Composable networking layer for Swift'
 
   s.description      = <<-DESC
@@ -23,8 +23,7 @@ Designed to be composable, predictable, and production-ready.
   s.source           = { :git => 'https://github.com/matsotaa/nis.git', :tag => s.version.to_s }
   s.ios.deployment_target = '15.0'
   s.osx.deployment_target = '12.0'
-  s.tvos.deployment_target = '13.0'
-  s.watchos.deployment_target = '6.0'
+  s.tvos.deployment_target = '15.0'
   s.swift_versions = ['5.9', '5.10']
   s.module_name = 'NIS'
   s.source_files = ['Sources/NIS/**/*.swift']
