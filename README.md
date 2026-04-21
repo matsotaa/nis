@@ -537,4 +537,4 @@ let secureSession = NISSecureURLSession(
 
 ## 📄 License
 
-MIT
+MIT License — see the [LICENSE](LICENSE) file for details.
