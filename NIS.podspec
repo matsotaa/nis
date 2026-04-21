@@ -17,11 +17,11 @@ It provides:
 Designed to be composable, predictable, and production-ready.
                        DESC
 
-  s.homepage         = 'https://github.com/YOUR_USERNAME/NIS'
+  s.homepage         = 'https://github.com/matsota/NIS'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Andrew Matsota' => 'your@email.com' }
+  s.author           = { 'Andrew Matsota' => 'matsotaandrew@gmail.com' }
 
-  s.source           = { :git => 'https://github.com/YOUR_USERNAME/NIS.git', :tag => s.version.to_s }
+  s.source           = { :git => 'https://github.com/matsota/NIS.git', :tag => s.version.to_s }
 
   # MUST match Package.swift
   s.ios.deployment_target = '15.0'
