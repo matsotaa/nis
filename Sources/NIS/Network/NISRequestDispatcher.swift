@@ -61,7 +61,7 @@ import Foundation
 ///
 /// let response: NISResponse<UserDTO> = await dispatcher.request(request)
 /// ```
-public final class NISRequestDispatcher: @unchecked Sendable {
+public final class NISRequestDispatcher: @unchecked Sendable, NISRequestDispatching {
 
     // MARK: - Public Dependencies
 
