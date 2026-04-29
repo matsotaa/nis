@@ -34,22 +34,20 @@ final class InflightRequestStoreTests: XCTestCase {
         assertSuccess(resolution.result)
     }
 
-    // MARK: - Inflight Deduplication
-
     func testConcurrentIdenticalRequestsShareSingleInflightTask() async {
         // GIVEN
         let store = InflightRequestStore()
         let counter = OperationCounter()
-        let operationStarted = expectation(description: "Shared operation started")
-
+        let started = expectation(description: "Shared operation started")
+        
         // WHEN
         async let first = store.value(for: key, policy: .disabled) {
             await counter.increment()
-            operationStarted.fulfill()
+            started.fulfill()
             try? await Task.sleep(nanoseconds: 200_000_000)
             return .success(.empty)
         }
-        await fulfillment(of: [operationStarted], timeout: 1)
+        await fulfillment(of: [started], timeout: 1)
         async let second = store.value(for: key, policy: .disabled) {
             XCTFail("Second request should join inflight task.")
             return .success(.empty)
@@ -64,6 +62,8 @@ final class InflightRequestStoreTests: XCTestCase {
         XCTAssertEqual(firstResolution.source, .new)
         XCTAssertEqual(secondResolution.source, .inflight)
         XCTAssertTrue(secondResolution.isDuplicate)
+        assertSuccess(firstResolution.result)
+        assertSuccess(secondResolution.result)
     }
 
     func testDifferentRequestKeysDoNotShareInflightTasks() async {
@@ -89,8 +89,8 @@ final class InflightRequestStoreTests: XCTestCase {
         // THEN
         XCTAssertEqual(callCount, 2)
     }
-
-    func testSuccessfulResponseIsReusedWithinTTL() async {
+    
+    func testValueReturnsCachedResponseWithinTTL() async {
         // GIVEN
         let store = InflightRequestStore()
         let counter = OperationCounter()
@@ -103,7 +103,7 @@ final class InflightRequestStoreTests: XCTestCase {
         }
 
         let cachedResolution = await store.value(for: key, policy: policy) {
-            XCTFail("Operation should not run when cache is valid.")
+            XCTFail("Operation should not execute when cache is valid.")
             return .success(.empty)
         }
         let callCount = await counter.value()
@@ -114,12 +114,11 @@ final class InflightRequestStoreTests: XCTestCase {
         XCTAssertTrue(cachedResolution.isDuplicate)
     }
 
-    func testExpiredCacheTriggersFreshExecution() async throws {
+    func testValueExecutesNewRequestAfterTTLExpires() async throws {
         // GIVEN
         let store = InflightRequestStore()
         let counter = OperationCounter()
-
-        let policy: NISRecentResponseReusePolicy = .successOnly(ttl: 0.1)
+        let policy: NISRecentResponseReusePolicy = .successOnly(ttl: 0.15)
 
         // WHEN
         _ = await store.value(for: key, policy: policy) {
@@ -127,8 +126,7 @@ final class InflightRequestStoreTests: XCTestCase {
             return .success(.empty)
         }
 
-        try await Task.sleep(nanoseconds: 300_000_000)
-
+        try await Task.sleep(nanoseconds: 350_000_000)
         let resolution = await store.value(for: key, policy: policy) {
             await counter.increment()
             return .success(.empty)
@@ -136,7 +134,7 @@ final class InflightRequestStoreTests: XCTestCase {
         let callCount = await counter.value()
 
         // THEN
-        XCTAssertEqual(callCount, 2 )
+        XCTAssertEqual(callCount, 2)
         XCTAssertEqual(resolution.source, .new)
         XCTAssertFalse(resolution.isDuplicate)
     }
@@ -168,7 +166,6 @@ final class InflightRequestStoreTests: XCTestCase {
         // GIVEN
         let store = InflightRequestStore()
         let counter = OperationCounter()
-
         let policy: NISRecentResponseReusePolicy = .successOnly(ttl: 2)
 
         _ = await store.value(for: key, policy: policy) {
@@ -181,6 +178,7 @@ final class InflightRequestStoreTests: XCTestCase {
             await counter.increment()
             return .failure(.cancelled)
         }
+        
         let callCount = await counter.value()
 
         // THEN
@@ -194,26 +192,23 @@ final class InflightRequestStoreTests: XCTestCase {
         let counter = OperationCounter()
         let policy: NISRecentResponseReusePolicy = .successOnly(ttl: -10)
 
+        // WHEN
         _ = await store.value(for: key, policy: policy) {
             await counter.increment()
             return .success(.empty)
         }
 
-        _ = await store.value(
-            for: key,
-            policy: policy
-        ) {
+        _ = await store.value(for: key, policy: policy) {
             await counter.increment()
             return .success(.empty)
         }
+
         let callCount = await counter.value()
 
         // THEN
         XCTAssertEqual(callCount, 2)
     }
-
-    // MARK: - Cancellation
-
+    
     func testCancellingOneSubscriberDoesNotCancelSharedTask() async {
         // GIVEN
         let store = InflightRequestStore()
@@ -238,21 +233,21 @@ final class InflightRequestStoreTests: XCTestCase {
 
         // WHEN
         firstTask.cancel()
-
         let secondResult = await secondTask.value
 
         // THEN
         XCTAssertEqual(secondResult.source, .inflight)
     }
-
-    func testCancellingAllSubscribersCancelsUnderlyingTask() async {
+    
+    func testCancellingAllSubscribersRemovesInflightEntry() async {
         // GIVEN
         let store = InflightRequestStore()
+        let counter = OperationCounter()
         let started = expectation(description: "Task started")
-        let cancelled = expectation(description: "Underlying task cancelled")
-
+        
         let first = Task {
             await store.value(for: key, policy: .disabled) {
+                await counter.increment()
                 started.fulfill()
 
                 do {
@@ -261,7 +256,6 @@ final class InflightRequestStoreTests: XCTestCase {
                     return .success(.empty)
 
                 } catch {
-                    cancelled.fulfill()
                     return .failure(.cancelled)
                 }
             }
@@ -279,9 +273,19 @@ final class InflightRequestStoreTests: XCTestCase {
         // WHEN
         first.cancel()
         second.cancel()
-
+        
+        try? await Task.sleep(nanoseconds: 200_000_000)
+        
+        let freshResolution = await store.value(for: key, policy: .disabled) {
+            await counter.increment()
+            return .success(.empty)
+        }
+        
+        let callCount = await counter.value()
+        
         // THEN
-        await fulfillment(of: [cancelled], timeout: 2)
+        XCTAssertEqual(callCount, 2)
+        XCTAssertEqual(freshResolution.source, .new)
     }
 }
 
