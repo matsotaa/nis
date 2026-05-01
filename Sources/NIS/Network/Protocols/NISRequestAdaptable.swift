@@ -39,7 +39,7 @@ import Foundation
 /// - Composition:
 ///   Multiple adapters can be combined using `NISRequestAdapterComposer`.
 public protocol NISRequestAdaptable {
-//    requestModifier
+
     /// Transforms the provided request before execution.
     ///
     /// - Parameter request: Original request produced by the caller.
