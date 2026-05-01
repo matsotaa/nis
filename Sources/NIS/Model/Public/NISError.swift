@@ -7,35 +7,6 @@
 
 import Foundation
 
-/// A type-erased wrapper for underlying errors used within `NISError`.
-///
-/// This wrapper preserves the original error while conforming to `Sendable`,
-/// allowing it to safely cross concurrency boundaries.
-///
-/// - Important:
-///   The wrapped `Error` is not guaranteed to be `Sendable`. This type uses
-///   `@unchecked Sendable`, meaning thread-safety is the responsibility of
-///   the caller.
-///
-/// - Use case:
-///   - Preserving original system or third-party errors
-///   - Passing errors through async/concurrent pipelines without losing context
-///
-/// - Note:
-///   Consumers can access the original error via `rawValue`.
-public struct NISUnderlyingError: Error, @unchecked Sendable {
-    
-    /// Original error captured by NIS.
-    public let rawValue: Error
-
-    /// Wraps any error into `NISUnderlyingError`.
-    ///
-    /// - Parameter rawValue: The original error to preserve.
-    public init(_ rawValue: Error) {
-        self.rawValue = rawValue
-    }
-}
-
 /// Unified error type used across the NIS networking pipeline.
 ///
 /// `NISError` provides a consistent abstraction over different failure sources:
@@ -132,5 +103,43 @@ public extension NISError {
     /// - Returns: `NISError.other`
     static func other(_ error: Error) -> Self {
         .other(.init(error))
+    }
+}
+
+// MARK: - Equatable
+
+extension NISError: Equatable {
+    
+    /// Compares two errors using semantic equality.
+    ///
+    /// Equality is defined by error category rather than strict comparison
+    /// of wrapped underlying errors.
+    ///
+    /// Rules:
+    /// - Simple cases compare by case identity.
+    /// - `.decoding`, `.transport`, and `.other` compare by category only.
+    /// - `.invalidStatusCode` compares associated status code and response data.
+    /// - Wrapped underlying errors are intentionally not deeply compared.
+    public static func == (lhs: NISError, rhs: NISError) -> Bool {
+        switch (lhs, rhs) {
+        case (.cancelled, .cancelled),
+             (.emptyResponse, .emptyResponse),
+             (.invalidResponse, .invalidResponse):
+            return true
+
+        case (.decoding, .decoding),
+             (.transport, .transport),
+             (.other, .other):
+            return true
+
+        case let (
+            .invalidStatusCode(lhsCode, lhsData, _),
+            .invalidStatusCode(rhsCode, rhsData, _)
+        ):
+            return lhsCode == rhsCode && lhsData == rhsData
+
+        default:
+            return false
+        }
     }
 }

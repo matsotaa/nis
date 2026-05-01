@@ -48,16 +48,10 @@ public struct NISResponse<Value> {
     public let result: Result<Value, NISError>
     
     /// Unwrapped `value` of result of request execution.
-    public var value: Value? {
-        guard case let .success(value) = result else { return nil }
-        return value
-    }
+    public var value: Value? { result.value }
     
     /// Unwrapped `error` of result of request execution.
-    public var error: NISError? {
-        guard case let .failure(error) = result else { return nil }
-        return error
-    }
+    public var error: NISError? { result.error }
 
     /// Raw transport data associated with the request.
     ///

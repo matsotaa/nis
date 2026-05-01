@@ -8,7 +8,24 @@
 import Foundation
 
 public enum NISURLSessionConfiguration {
+    /// Uses NIS recommended URLSession configuration defaults.
+    ///
+    /// Includes:
+    /// - SDK diagnostic headers
+    /// - waits for connectivity enabled
+    /// - default request/resource timeouts
+    ///
+    /// Use `.custom` when full control over session configuration is required.
     case nis
+
+    /// Uses a caller-supplied URLSessionConfiguration unchanged.
+    ///
+    /// Prefer this when customizing:
+    /// - additional headers
+    /// - cache policies
+    /// - custom timeout values
+    /// - background/ephemeral sessions
+    /// - transport-level options
     case custom(configuration: URLSessionConfiguration)
 }
 

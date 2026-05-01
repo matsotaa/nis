@@ -29,12 +29,12 @@ internal struct NISPublisher<T: Decodable>: Publisher {
     typealias Output = NISResponse<T>
     typealias Failure = Never
 
-    private let dispatcher: NISRequestDispatcher
+    private let dispatcher: any NISRequestDispatching
     private let request: URLRequest
     private let decoder: JSONDecoder
 
     init(
-        dispatcher: NISRequestDispatcher,
+        dispatcher: any NISRequestDispatching,
         request: URLRequest,
         decoder: JSONDecoder
     ) {
@@ -74,7 +74,7 @@ private extension NISPublisher {
         private var task: Task<Void, Never>?
         private let state: State<S>
 
-        private let dispatcher: NISRequestDispatcher
+        private let dispatcher: any NISRequestDispatching
         private let request: URLRequest
         private let decoder: JSONDecoder
         private let type: T.Type
@@ -83,7 +83,7 @@ private extension NISPublisher {
 
         init(
             subscriber: S,
-            dispatcher: NISRequestDispatcher,
+            dispatcher: any NISRequestDispatching,
             request: URLRequest,
             decoder: JSONDecoder,
             type: T.Type

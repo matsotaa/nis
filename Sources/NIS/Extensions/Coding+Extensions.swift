@@ -97,6 +97,11 @@ public extension JSONDecoder {
                 return Date(timeIntervalSince1970: timestamp)
             }
             
+            // Attempt string-double-based parsing
+            if let string = try? container.decode(String.self), let timestamp = Double(string) {
+                return Date(timeIntervalSince1970: timestamp)
+            }
+            
             // Attempt string-based parsing
             if let string = try? container.decode(String.self), let date = string.nisParsedDate {
                 return date
